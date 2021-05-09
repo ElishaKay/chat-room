@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html class="no-js"> 
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Socket Chat</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+       
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.min.js" crossorigin="anonymous"></script>
+
+        <style>
+            body {
+                margin-top: 30px;
+            }
+            #messageArea {
+                display: none;
+            }
+        </style>
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+      <div class= "container">
+        <div id="userFormArea" class="row">
+            <div class="col-md-12">
+             <form id="userForm">
+                <div class="form-group">
+                    <label>Enter Username</label>
+                    <input class="form-control" id="username"></input>
+                    <br />
+                    <input type="submit" class="btn btn-primary" value="Login" />
+                    </div>
+              </form>
+            </div>
+         </div>   
+
+         <div id="messageArea" class= "row">
+             <div class="col-md-4">
+                <div class="well">
+                    <h3>Online Users</h3>
+                    <ul class="list-group" id="users"></ul>
+                </div>        
+            </div>
+            <div class="col-md-8">
+              <div class="chat" id="chat"></div>
+              
+               <form id="messageForm">
+                <div class="form-group">
+                    <label>Enter Message</label>
+                    <textarea class="form-control" id="message"></textarea>
+                    <br />
+                    <input type="submit" class="btn btn-primary" value="Send Message" />
+                    </div>
+              </form>
+            </div>
+         </div>
+     </div>
+
+     <script>
+        
+            let socket = io.connect();
+
+            let messageForm = document.querySelector('#messageForm')
+            let chat = document.querySelector('#chat');
+            let messageArea = document.querySelector('#messageArea');
+            let userFormArea = document.querySelector('#userFormArea');
+            let userForm = document.querySelector('#userForm');
+            let users = document.querySelector('#users');
+            let username = document.querySelector('#username');
+
+            messageForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                let message = document.querySelector('#message')
+                console.log('messageForm has been submitted: ', message.value)
+                socket.emit('send message', message.value);
+                message.value = '';
+            });
+
+            socket.on('new message', function(data){
+                let newChatMessage = document.createElement('div'); // is a node
+                newChatMessage.innerHTML = '<div class="well"><strong>'+ data.user +'</strong>: '
+                + data.msg + '</div>';
+                chat.appendChild(newChatMessage);
+            });
+
+            userForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                socket.emit('new user', username.value, function(data){
+                    if(data){
+                        userFormArea.style.display = 'none';
+                        messageArea.style.display = 'block';
+                    }
+                });
+                username.value = '';
+            });
+
+            socket.on('get users', function(data){
+                let html = '';
+                for (i=0; i< data.length; i++){
+                    html += '<li class="list-group-item">'+ data[i] +'</li>' 
+                }
+
+                users.innerHTML = html 
+            });
+       
+    </script>
+    </body>
+</html>

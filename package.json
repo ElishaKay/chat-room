@@ -1,0 +1,15 @@
+{
+  "name": "The ultimate chat room",
+  "version": "1.0.0",
+  "description": "Chat it up with friends online",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^",
+    "socket.io": "^4.0.1"
+  }
+}
